@@ -149,3 +149,12 @@ def get_package_patches(session: Session, ecosystem: str, name: str) -> list[dic
         name=name,
     )
     return [dict(record) for record in result]
+
+
+def get_patch(session: Session, patch_id: str) -> dict | None:
+    result = session.run(
+        "MATCH (p:Patch {patch_id: $patch_id}) RETURN p AS patch",
+        patch_id=patch_id,
+    )
+    record = result.single()
+    return dict(record["patch"]) if record else None
