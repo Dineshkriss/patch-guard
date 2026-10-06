@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Env
+.env
+*.local
+
+# Neo4j
+neo4j-data/
+neo4j-logs/
+
+# OS
+.DS_Store
+
+# Editors
+.idea/
+.vscode/
