@@ -1,0 +1,47 @@
+name: Scheduled data refresh
+
+# Fulfils the project's "Sustainable Automation" milestone: periodically
+# re-run the ingestion pipeline for a tracked set of packages so the graph
+# stays current without manual intervention.
+#
+# Needs a reachable Neo4j instance — point NEO4J_URI/NEO4J_USER/NEO4J_PASSWORD
+# repo secrets at your deployed instance (e.g. Neo4j Aura) before enabling.
+
+on:
+  schedule:
+    - cron: "0 6 * * 1" # every Monday at 06:00 UTC
+  workflow_dispatch:
+    inputs:
+      ecosystem:
+        description: "Ecosystem to refresh (npm, pypi, maven, nuget, linux)"
+        required: false
+        default: "npm"
+      package:
+        description: "Package name to refresh"
+        required: false
+        default: "lodash"
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    env:
+      NEO4J_URI: ${{ secrets.NEO4J_URI }}
+      NEO4J_USER: ${{ secrets.NEO4J_USER }}
+      NEO4J_PASSWORD: ${{ secrets.NEO4J_PASSWORD }}
+      NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -e .
+
+      - name: Refresh tracked packages
+        run: |
+          python scripts/seed.py \
+            --ecosystem "${{ inputs.ecosystem || 'npm' }}" \
+            --package "${{ inputs.package || 'lodash' }}"
