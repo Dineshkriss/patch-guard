@@ -32,7 +32,8 @@ def seed(
     patches = asyncio.run(ingest_package(ecosystem, package, max_versions=max_versions))
     typer.echo(f"Ingested {len(patches)} patch(es) for {ecosystem.value}:{package}")
     for patch in patches[:5]:
-        cve_note = f", fixes {len(patch.vulnerabilities_fixed)} CVE(s)" if patch.vulnerabilities_fixed else ""
+        n_cves = len(patch.vulnerabilities_fixed)
+        cve_note = f", fixes {n_cves} CVE(s)" if n_cves else ""
         typer.echo(f"  - {patch.fixed_version}{cve_note}")
 
 

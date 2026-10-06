@@ -14,7 +14,9 @@ import httpx
 EOL_API_URL = "https://endoflife.date/api/{product}.json"
 
 
-async def get_eol_status(client: httpx.AsyncClient, product: str, cycle: str) -> tuple[bool, date | None]:
+async def get_eol_status(
+    client: httpx.AsyncClient, product: str, cycle: str
+) -> tuple[bool, date | None]:
     """Whether a given release cycle (e.g. "3.11", "20.04") of a product
     tracked by endoflife.date has reached end-of-life.
 

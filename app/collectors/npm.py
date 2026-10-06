@@ -19,7 +19,8 @@ async def collect(client: httpx.AsyncClient, package_name: str) -> list[Patch]:
 
     times: dict[str, str] = data.get("time", {})
     versions: dict[str, dict] = data.get("versions", {})
-    vendor = package_name.lstrip("@").split("/")[0] if package_name.startswith("@") else package_name
+    is_scoped = package_name.startswith("@")
+    vendor = package_name.lstrip("@").split("/")[0] if is_scoped else package_name
 
     patches = []
     for version in versions:
