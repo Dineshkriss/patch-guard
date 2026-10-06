@@ -79,6 +79,41 @@ uvicorn app.main:app --reload
 # → http://localhost:8000/docs
 ```
 
+### Example output
+
+```
+$ python scripts/seed.py --ecosystem npm --package lodash --max-versions 10
+Ingested 10 patch(es) for npm:lodash
+  - 4.18.1, fixes 9 CVE(s)
+  - 4.18.0, fixes 9 CVE(s)
+  - 4.17.23, fixes 9 CVE(s)
+  - 4.17.21, fixes 9 CVE(s)
+  - 4.17.20, fixes 9 CVE(s)
+
+$ curl localhost:8000/graph/CVE-2021-23337
+{
+  "cve_id": "CVE-2021-23337",
+  "patches": [
+    {
+      "patch": {
+        "patch_id": "npm:lodash:4.17.15",
+        "ecosystem": "npm",
+        "fixed_version": "4.17.15",
+        "confidence_score": 100,
+        "is_eol": false
+      },
+      "cpe": {
+        "cpe23uri": "cpe:2.3:a:lodash:lodash:*:*:*:*:*:node.js:*:*"
+      }
+    }
+  ]
+}
+```
+
+That's a real `MATCH (cve:CVE {cve_id: $cve_id})<-[:FIXES]-(patch:Patch)-[:APPLIES_TO]->(cpe:CPE)`
+traversal, run against a Neo4j instance seeded two minutes earlier from
+live npm + NVD data — not a fixture.
+
 ## Tech stack
 
 Python · FastAPI · Neo4j · httpx · Pydantic · Docker Compose · GitHub Actions
@@ -87,12 +122,17 @@ Python · FastAPI · Neo4j · httpx · Pydantic · Docker Compose · GitHub Acti
 
 | Milestone | Status |
 |---|---|
-| Collection (npm/PyPI/Maven/NuGet/Linux) | In progress |
-| Correlation (CVE/CPE via NVD) | In progress |
-| Confidence scoring | In progress |
-| Knowledge graph (Neo4j) | In progress |
-| API | In progress |
-| Automation (scheduled refresh) | In progress |
+| Collection (npm/PyPI/Maven/NuGet/Linux) | Done — live registries, no static CSVs |
+| Correlation (CVE/CPE via NVD) | Done — product-name match; see [known limitations](docs/ARCHITECTURE.md#design-decisions-and-known-limitations) |
+| Confidence scoring | Done — see [docs/confidence-score.md](docs/confidence-score.md) |
+| Knowledge graph (Neo4j) | Done |
+| REST API | Done |
+| Automation (scheduled refresh) | Done — weekly GitHub Actions cron |
+| Precise version-range correlation | Planned |
+| Web dashboard / graph visualization | Planned |
+
+See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for design decisions and
+what's deliberately simplified in this pass.
 
 ## License
 
